@@ -28,12 +28,24 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {session ? (
               <>
-                <span className="text-sm text-gray-600 hidden sm:block">
-                  {session.user.email}
-                </span>
+                <div className="text-right">
+                  <span className="text-sm font-medium text-gray-700 block">
+                    {session.user.user_metadata?.name || session.user.email?.split('@')[0]}
+                  </span>
+                  <span className="text-xs text-gray-500 hidden sm:block">
+                    {session.user.email}
+                  </span>
+                </div>
                 <button
-                  onClick={signOut}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  onClick={async () => {
+                    const { error } = await signOut()
+                    if (error) {
+                      console.error('Logout failed:', error.message)
+                    } else {
+                      console.log('Successfully logged out')
+                    }
+                  }}
+                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
                 >
                   Sign Out
                 </button>

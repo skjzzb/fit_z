@@ -12,11 +12,8 @@ import CaloriesChart from '../components/analytics/CaloriesChart'
  * Main dashboard for logged-in users
  */
 export default function Dashboard() {
-  // const { session } = useAuth()
-  // const userId = session?.user?.id
-
-  // Mock userId for testing without authentication
-  const userId = 'saurabhjk07@gmail.com'
+  const { session } = useAuth()
+  const userId = session?.user?.id
 
   const { meals, loading: mealsLoading, deleteMeal } = useMeals(userId)
   const { dailyTotals, weeklyData, loading: nutritionLoading } = useNutrition(userId)
@@ -31,14 +28,13 @@ export default function Dashboard() {
     // Refresh data will happen automatically via hooks
   }
 
-  // Removed userId check for testing
-  // if (!userId) {
-  //   return (
-  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-  //       <p className="text-gray-500">Loading...</p>
-  //     </div>
-  //   )
-  // }
+  if (!userId) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
