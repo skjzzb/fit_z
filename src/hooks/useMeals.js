@@ -24,11 +24,11 @@ export function useMeals(userId) {
     setLoading(false)
   }
 
-  const addMeal = async (foodId, quantity) => {
+  const addMeal = async (foodId, quantity, customDate = null) => {
     setLoading(true)
     setError(null)
 
-    const { data, error } = await mealService.addMeal(userId, foodId, quantity)
+    const { data, error } = await mealService.addMeal(userId, foodId, quantity, customDate)
 
     if (error) {
       setError(error.message)

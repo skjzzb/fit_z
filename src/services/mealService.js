@@ -183,6 +183,99 @@ export const mealService = {
         calories: Math.round(totals.calories)
       }))
       .sort((a, b) => new Date(a.date) - new Date(b.date))
+  },
+
+  /**
+   * Get monthly totals for charting
+   * @param {string} userId
+   * @returns {Promise<{date: string, protein: number, calories: number}[]>}
+   */
+  async getMonthlyTotals(userId) {
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setMonth(endDate.getMonth() - 11) // Last 12 months
+
+    const { data: meals, error } = await supabase
+      .from('meal_logs')
+      .select(`
+        quantity,
+        created_at,
+        foods (protein, calories)
+      `)
+      .eq('user_id', userId)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString())
+
+    if (error) {
+      return []
+    }
+
+    // Group by month
+    const monthlyTotals = {}
+    meals.forEach(meal => {
+      const date = new Date(meal.created_at)
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      if (!monthlyTotals[monthKey]) {
+        monthlyTotals[monthKey] = { protein: 0, calories: 0 }
+      }
+      monthlyTotals[monthKey].protein += meal.foods.protein * meal.quantity
+      monthlyTotals[monthKey].calories += meal.foods.calories * meal.quantity
+    })
+
+    // Convert to array sorted by date
+    return Object.entries(monthlyTotals)
+      .map(([monthKey, totals]) => ({
+        date: monthKey,
+        protein: Math.round(totals.protein * 10) / 10,
+        calories: Math.round(totals.calories)
+      }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+  },
+
+  /**
+   * Get yearly totals for charting
+   * @param {string} userId
+   * @returns {Promise<{date: string, protein: number, calories: number}[]>}
+   */
+  async getYearlyTotals(userId) {
+    const endDate = new Date()
+    const startDate = new Date()
+    startDate.setFullYear(endDate.getFullYear() - 4) // Last 5 years
+
+    const { data: meals, error } = await supabase
+      .from('meal_logs')
+      .select(`
+        quantity,
+        created_at,
+        foods (protein, calories)
+      `)
+      .eq('user_id', userId)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString())
+
+    if (error) {
+      return []
+    }
+
+    // Group by year
+    const yearlyTotals = {}
+    meals.forEach(meal => {
+      const year = new Date(meal.created_at).getFullYear().toString()
+      if (!yearlyTotals[year]) {
+        yearlyTotals[year] = { protein: 0, calories: 0 }
+      }
+      yearlyTotals[year].protein += meal.foods.protein * meal.quantity
+      yearlyTotals[year].calories += meal.foods.calories * meal.quantity
+    })
+
+    // Convert to array sorted by date
+    return Object.entries(yearlyTotals)
+      .map(([year, totals]) => ({
+        date: year,
+        protein: Math.round(totals.protein * 10) / 10,
+        calories: Math.round(totals.calories)
+      }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
   }
 }
 

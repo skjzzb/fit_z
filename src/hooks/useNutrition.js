@@ -11,6 +11,8 @@ export function useNutrition(userId) {
     mealCount: 0
   })
   const [weeklyData, setWeeklyData] = useState([])
+  const [monthlyData, setMonthlyData] = useState([])
+  const [yearlyData, setYearlyData] = useState([])
   const [loading, setLoading] = useState(false)
 
   const fetchDailyTotals = async (date = new Date()) => {
@@ -27,19 +29,39 @@ export function useNutrition(userId) {
     setLoading(false)
   }
 
+  const fetchMonthlyData = async () => {
+    setLoading(true)
+    const data = await mealService.getMonthlyTotals(userId)
+    setMonthlyData(data)
+    setLoading(false)
+  }
+
+  const fetchYearlyData = async () => {
+    setLoading(true)
+    const data = await mealService.getYearlyTotals(userId)
+    setYearlyData(data)
+    setLoading(false)
+  }
+
   useEffect(() => {
     if (userId) {
       fetchDailyTotals()
       fetchWeeklyData()
+      fetchMonthlyData()
+      fetchYearlyData()
     }
   }, [userId])
 
   return {
     dailyTotals,
     weeklyData,
+    monthlyData,
+    yearlyData,
     loading,
     refreshDaily: fetchDailyTotals,
-    refreshWeekly: fetchWeeklyData
+    refreshWeekly: fetchWeeklyData,
+    refreshMonthly: fetchMonthlyData,
+    refreshYearly: fetchYearlyData
   }
 }
 

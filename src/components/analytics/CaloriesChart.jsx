@@ -2,25 +2,35 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 
 /**
  * CaloriesChart Component
- * Displays weekly calorie intake
+ * Displays calorie intake over selected period
  */
-export default function CaloriesChart({ data }) {
+export default function CaloriesChart({ data, period = 'weekly' }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-        No data available for the past week
+        No data available for {period} view
       </div>
     )
   }
 
   const chartData = data.map(d => ({
     ...d,
-    date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    date: new Date(d.date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: period === 'yearly' ? undefined : 'numeric',
+      year: period === 'yearly' ? '2-digit' : undefined
+    })
   }))
+
+  const periodLabels = {
+    weekly: 'Weekly Calorie Intake',
+    monthly: 'Monthly Calorie Intake',
+    yearly: 'Yearly Calorie Intake'
+  }
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h3 className="text-lg font-semibold mb-4">Weekly Calorie Intake</h3>
+      <h3 className="text-lg font-semibold mb-4">{periodLabels[period] || 'Calorie Intake'}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>

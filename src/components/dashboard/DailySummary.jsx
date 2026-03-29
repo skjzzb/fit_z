@@ -2,31 +2,50 @@ import { formatDate } from '../../utils/formatters'
 
 /**
  * DailySummary Component
- * Shows today's meals and totals
+ * Shows meals and totals for selected date (defaults to today)
  */
-export default function DailySummary({ meals, totals, onDeleteMeal }) {
+export default function DailySummary({ meals, totals, onDeleteMeal, selectedDate }) {
+  // Filter meals for the selected date
+  const filteredMeals = meals.filter(meal => {
+    const mealDate = new Date(meal.created_at).toISOString().split('T')[0]
+    return mealDate === selectedDate
+  })
+
+  // Calculate totals for selected date
+  const selectedDateTotals = {
+    totalProtein: filteredMeals.reduce((sum, meal) => sum + (meal.foods.protein * meal.quantity), 0),
+    totalCalories: filteredMeals.reduce((sum, meal) => sum + (meal.foods.calories * meal.quantity), 0),
+    mealCount: filteredMeals.length
+  }
+
+  const displayDate = new Date(selectedDate).toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  })
+
   return (
     <div className="space-y-6">
       {/* Totals Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 font-medium">Protein Today</div>
+          <div className="text-sm text-gray-500 font-medium">Protein</div>
           <div className="text-3xl font-bold text-blue-600 mt-1">
-            {totals.totalProtein}g
+            {Math.round(selectedDateTotals.totalProtein * 10) / 10}g
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="text-sm text-gray-500 font-medium">Calories Today</div>
+          <div className="text-sm text-gray-500 font-medium">Calories</div>
           <div className="text-3xl font-bold text-green-600 mt-1">
-            {totals.totalCalories}
+            {Math.round(selectedDateTotals.totalCalories)}
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 font-medium">Meals Logged</div>
           <div className="text-3xl font-bold text-orange-600 mt-1">
-            {totals.mealCount}
+            {selectedDateTotals.mealCount}
           </div>
         </div>
       </div>
@@ -34,16 +53,16 @@ export default function DailySummary({ meals, totals, onDeleteMeal }) {
       {/* Meals List */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold">Today's Meals</h3>
+          <h3 className="text-lg font-semibold">Meals on {displayDate}</h3>
         </div>
 
-        {meals.length === 0 ? (
+        {filteredMeals.length === 0 ? (
           <div className="p-6 text-center text-gray-500">
-            No meals logged today. Start tracking your nutrition!
+            No meals logged on this date. Start tracking your nutrition!
           </div>
         ) : (
           <ul className="divide-y divide-gray-200">
-            {meals.map(meal => (
+            {filteredMeals.map(meal => (
               <li key={meal.id} className="px-6 py-4 flex items-center justify-between">
                 <div className="flex-1">
                   <div className="font-medium text-gray-900">{meal.foods.name}</div>

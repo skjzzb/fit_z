@@ -20,11 +20,27 @@ export default function Dashboard() {
   // Modal states
   const [showLogMealModal, setShowLogMealModal] = useState(false)
   const [showCustomMealModal, setShowCustomMealModal] = useState(false)
+  
+  // Date and period selection
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [chartPeriod, setChartPeriod] = useState('weekly') // weekly, monthly, yearly
 
   const { meals, loading: mealsLoading, deleteMeal } = useMeals(userId)
-  const { dailyTotals, weeklyData, loading: nutritionLoading, refreshDaily } = useNutrition(userId)
+  const { dailyTotals, weeklyData, monthlyData, yearlyData, loading: nutritionLoading, refreshDaily, refreshWeekly, refreshMonthly, refreshYearly } = useNutrition(userId)
 
   const isLoading = mealsLoading || nutritionLoading
+
+  // Get chart data based on selected period
+  const getChartData = () => {
+    switch (chartPeriod) {
+      case 'monthly':
+        return monthlyData
+      case 'yearly':
+        return yearlyData
+      default:
+        return weeklyData
+    }
+  }
 
   const handleDeleteMeal = async (mealId) => {
     await deleteMeal(mealId)
@@ -58,6 +74,64 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Date Selection */}
+        <div className="mb-8 bg-white rounded-lg shadow p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <label htmlFor="selectedDate" className="text-sm font-medium text-gray-700">
+                📅 View meals for:
+              </label>
+              <input
+                type="date"
+                id="selectedDate"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <span className="text-sm text-gray-500">
+                {new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+            </div>
+
+            {/* Chart Period Selection */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">📊 Chart view:</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setChartPeriod('weekly')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    chartPeriod === 'weekly'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Weekly
+                </button>
+                <button
+                  onClick={() => setChartPeriod('monthly')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    chartPeriod === 'monthly'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setChartPeriod('yearly')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    chartPeriod === 'yearly'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  Yearly
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main content - left column */}
           <div className="lg:col-span-2 space-y-6">
@@ -82,6 +156,7 @@ export default function Dashboard() {
                 meals={meals}
                 totals={dailyTotals}
                 onDeleteMeal={handleDeleteMeal}
+                selectedDate={selectedDate}
               />
             </div>
           </div>
@@ -89,21 +164,14 @@ export default function Dashboard() {
           {/* Sidebar */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
-              {/* <div className="space-y-3 text-sm text-gray-600">
-                <p>Track your daily nutrition and monitor your progress over time.</p>
-                <p>Log meals to see your protein and calorie totals update in real-time.</p>
-              </div> */}
+              <h2 className="text-lg font-semibold mb-4">📈 Insights</h2>
 
               <div className="mt-8 grid grid-cols-1 gap-6">
-                <ProteinChart data={weeklyData} />
-                <CaloriesChart data={weeklyData} />
+                <ProteinChart data={getChartData()} period={chartPeriod} />
+                <CaloriesChart data={getChartData()} period={chartPeriod} />
               </div>
             </div>
           </div>
-
-
-
         </div>
       </main>
 
