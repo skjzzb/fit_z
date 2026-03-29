@@ -6,8 +6,10 @@ import { formatDate } from '../../utils/formatters'
  */
 export default function DailySummary({ meals, totals, onDeleteMeal, selectedDate }) {
   // Filter meals for the selected date
+  // Extract date directly from created_at string to avoid timezone issues
   const filteredMeals = meals.filter(meal => {
-    const mealDate = new Date(meal.created_at).toISOString().split('T')[0]
+    // Get the date portion directly from the ISO string (YYYY-MM-DD)
+    const mealDate = meal.created_at.split('T')[0]
     return mealDate === selectedDate
   })
 
