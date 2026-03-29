@@ -16,16 +16,19 @@ export default function Dashboard() {
   const userId = session?.user?.id
 
   const { meals, loading: mealsLoading, deleteMeal } = useMeals(userId)
-  const { dailyTotals, weeklyData, loading: nutritionLoading } = useNutrition(userId)
+  const { dailyTotals, weeklyData, loading: nutritionLoading, refreshDaily } = useNutrition(userId)
 
   const isLoading = mealsLoading || nutritionLoading
 
   const handleDeleteMeal = async (mealId) => {
     await deleteMeal(mealId)
+    // Refresh nutrition data after deleting a meal
+    refreshDaily()
   }
 
   const handleMealAdded = () => {
-    // Refresh data will happen automatically via hooks
+    // Refresh nutrition data when a meal is added
+    refreshDaily()
   }
 
   if (!userId) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import foodService from '../../services/foodService'
-import mealService from '../../services/mealService'
+import { useMeals } from '../../hooks/useMeals'
 
 /**
  * AddMeal Component
@@ -13,6 +13,8 @@ export default function AddMeal({ userId, onMealAdded }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+
+  const { addMeal } = useMeals(userId)
 
   // Load foods on mount
   useEffect(() => {
@@ -36,14 +38,10 @@ export default function AddMeal({ userId, onMealAdded }) {
     setError(null)
     setSuccess(false)
 
-    const { data, error } = await mealService.addMeal(
-      userId,
-      selectedFoodId,
-      quantity
-    )
+    const { data, error } = await addMeal(selectedFoodId, quantity)
 
     if (error) {
-      setError(error.message)
+      setError(error)
     } else {
       setSuccess(true)
       onMealAdded?.(data)
