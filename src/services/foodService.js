@@ -42,6 +42,20 @@ export const foodService = {
       .select()
       .single()
     return { data, error }
+  },
+
+  /**
+   * Search foods by name (case-insensitive)
+   * @param {string} query - Search term
+   * @returns {Promise<{data: any[], error: any}>}
+   */
+  async searchFoods(query) {
+    const { data, error } = await supabase
+      .from('foods')
+      .select('*')
+      .ilike('name', `%${query}%`)
+      .order('name')
+    return { data, error }
   }
 }
 

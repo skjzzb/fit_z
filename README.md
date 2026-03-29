@@ -6,6 +6,7 @@ A full-stack fitness tracking application built with React, Vite, Tailwind CSS, 
 
 - **Authentication**: Google OAuth via Supabase
 - **Meal Logging**: Track daily meals and nutritional intake
+- **Food Search**: Search and filter foods from the database while logging meals
 - **Dashboard**: Real-time protein and calorie totals
 - **Data Visualization**: Weekly charts using Recharts
 - **Responsive Design**: Mobile-first UI with Tailwind CSS

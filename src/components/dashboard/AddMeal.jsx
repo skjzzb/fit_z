@@ -10,25 +10,31 @@ export default function AddMeal({ userId, onMealAdded }) {
   const [selectedFoodId, setSelectedFoodId] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [foods, setFoods] = useState([])
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
 
   const { addMeal } = useMeals(userId)
 
-  // Load foods on mount
+  // Load foods on mount or when search changes
   useEffect(() => {
     const loadFoods = async () => {
-      const { data, error } = await foodService.getAllFoods()
+      setLoading(true)
+      const { data, error } = searchQuery.trim()
+        ? await foodService.searchFoods(searchQuery)
+        : await foodService.getAllFoods()
+
       if (!error && data) {
         setFoods(data)
-        if (data.length > 0) {
+        if (data.length > 0 && !selectedFoodId) {
           setSelectedFoodId(data[0].id)
         }
       }
+      setLoading(false)
     }
     loadFoods()
-  }, [])
+  }, [searchQuery])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -69,23 +75,43 @@ export default function AddMeal({ userId, onMealAdded }) {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
+          <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+            Search Foods
+          </label>
+          <input
+            type="text"
+            id="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Type to search foods..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div>
           <label htmlFor="food" className="block text-sm font-medium text-gray-700 mb-1">
             Food
           </label>
-          <select
-            id="food"
-            value={selectedFoodId}
-            onChange={(e) => setSelectedFoodId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          >
-            <option value="">Select a food</option>
-            {foods.map(food => (
-              <option key={food.id} value={food.id}>
-                {food.name} ({food.protein}g protein, {food.calories} cal)
-              </option>
-            ))}
-          </select>
+          {loading ? (
+            <div className="w-full px-3 py-2 text-gray-500">Loading foods...</div>
+          ) : foods.length === 0 ? (
+            <div className="w-full px-3 py-2 text-gray-500">No foods found</div>
+          ) : (
+            <select
+              id="food"
+              value={selectedFoodId}
+              onChange={(e) => setSelectedFoodId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            >
+              <option value="">Select a food</option>
+              {foods.map(food => (
+                <option key={food.id} value={food.id}>
+                  {food.name} ({food.protein}g protein, {food.calories} cal)
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div>
