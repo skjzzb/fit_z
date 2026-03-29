@@ -1,25 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useAuth } from './hooks/useAuth'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
-import { supabase } from './services/supabase'
 
 function App() {
-  const [session, setSession] = useState(null)
+  // const { session, loading } = useAuth()
+  // console.log('App: Current session state:', { session, loading })
 
-  // Check for existing session on mount
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
+  // if (loading) {
+  //   return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  // }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+  // return session ? <Dashboard /> : <Login />
 
-    return () => subscription.unsubscribe()
-  }, [])
-
-  return session ? <Dashboard /> : <Login />
+  // Temporarily show dashboard only for testing
+  return <Dashboard />
 }
 
 export default App
