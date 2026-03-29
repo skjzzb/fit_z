@@ -25,7 +25,7 @@ export default function DailySummary({ meals, totals, onDeleteMeal }) {
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="text-sm text-gray-500 font-medium">Meals Logged</div>
-          <div className="text-3xl font-bold text-purple-600 mt-1">
+          <div className="text-3xl font-bold text-orange-600 mt-1">
             {totals.mealCount}
           </div>
         </div>

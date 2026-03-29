@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useMeals } from '../hooks/useMeals'
 import { useNutrition } from '../hooks/useNutrition'
 import Navbar from '../components/common/Navbar'
-import AddMeal from '../components/dashboard/AddMeal'
 import DailySummary from '../components/dashboard/DailySummary'
 import ProteinChart from '../components/analytics/ProteinChart'
 import CaloriesChart from '../components/analytics/CaloriesChart'
+import LogMealModal from '../components/dashboard/LogMealModal'
+import AddCustomMealModal from '../components/dashboard/AddCustomMealModal'
 
 /**
  * Dashboard Page
@@ -14,6 +16,10 @@ import CaloriesChart from '../components/analytics/CaloriesChart'
 export default function Dashboard() {
   const { session } = useAuth()
   const userId = session?.user?.id
+  
+  // Modal states
+  const [showLogMealModal, setShowLogMealModal] = useState(false)
+  const [showCustomMealModal, setShowCustomMealModal] = useState(false)
 
   const { meals, loading: mealsLoading, deleteMeal } = useMeals(userId)
   const { dailyTotals, weeklyData, loading: nutritionLoading, refreshDaily } = useNutrition(userId)
@@ -55,7 +61,22 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main content - left column */}
           <div className="lg:col-span-2 space-y-6">
-            <AddMeal userId={userId} onMealAdded={handleMealAdded} />
+            {/* Meal Action Buttons */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowLogMealModal(true)}
+                className="flex-1 py-3 px-6 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm transition-colors"
+              >
+                📝 Log Meal
+              </button>
+              <button
+                onClick={() => setShowCustomMealModal(true)}
+                className="flex-1 py-3 px-6 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-sm transition-colors"
+              >
+                ➕ Add Custom Meal
+              </button>
+            </div>
+
             <div className="text-sm text-gray-600">
               <DailySummary
                 meals={meals}
@@ -85,6 +106,21 @@ export default function Dashboard() {
 
         </div>
       </main>
+
+      {/* Modals */}
+      <LogMealModal
+        userId={userId}
+        isOpen={showLogMealModal}
+        onClose={() => setShowLogMealModal(false)}
+        onMealAdded={handleMealAdded}
+      />
+
+      <AddCustomMealModal
+        userId={userId}
+        isOpen={showCustomMealModal}
+        onClose={() => setShowCustomMealModal(false)}
+        onMealAdded={handleMealAdded}
+      />
     </div>
   )
 }

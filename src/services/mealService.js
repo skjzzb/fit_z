@@ -64,12 +64,24 @@ export const mealService = {
    * @param {string} userId
    * @param {string} foodId
    * @param {number} quantity
+   * @param {Date} [customDate] - Optional custom date for the meal
    * @returns {Promise<{data: any, error: any}>}
    */
-  async addMeal(userId, foodId, quantity) {
+  async addMeal(userId, foodId, quantity, customDate = null) {
+    const mealRecord = {
+      user_id: userId,
+      food_id: foodId,
+      quantity
+    }
+
+    // If a custom date is provided, set the created_at timestamp
+    if (customDate) {
+      mealRecord.created_at = customDate.toISOString()
+    }
+
     const { data, error } = await supabase
       .from('meal_logs')
-      .insert([{ user_id: userId, food_id: foodId, quantity }])
+      .insert([mealRecord])
       .select(`
         id,
         quantity,
