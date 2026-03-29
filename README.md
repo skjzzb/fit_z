@@ -112,6 +112,10 @@ CREATE POLICY "Users can update own profile" ON profiles
 CREATE POLICY "Foods are viewable by all" ON foods
   FOR SELECT USING (true);
 
+-- Allow authenticated users to create foods (for custom meals)
+CREATE POLICY "Users can create foods" ON foods
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
 -- Meal logs: Users can only access their own meals
 CREATE POLICY "Users can CRUD own meal_logs" ON meal_logs
   USING (auth.uid() = user_id);

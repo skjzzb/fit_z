@@ -56,28 +56,33 @@ export default function Dashboard() {
           {/* Main content - left column */}
           <div className="lg:col-span-2 space-y-6">
             <AddMeal userId={userId} onMealAdded={handleMealAdded} />
-            <DailySummary
-              meals={meals}
-              totals={dailyTotals}
-              onDeleteMeal={handleDeleteMeal}
-            />
+            <div className="text-sm text-gray-600">
+              <DailySummary
+                meals={meals}
+                totals={dailyTotals}
+                onDeleteMeal={handleDeleteMeal}
+              />
+            </div>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold mb-4">Quick Stats</h2>
-              <div className="space-y-3 text-sm text-gray-600">
+              {/* <div className="space-y-3 text-sm text-gray-600">
                 <p>Track your daily nutrition and monitor your progress over time.</p>
                 <p>Log meals to see your protein and calorie totals update in real-time.</p>
+              </div> */}
+
+              <div className="mt-8 grid grid-cols-1 gap-6">
+                <ProteinChart data={weeklyData} />
+                <CaloriesChart data={weeklyData} />
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-6">
-          <ProteinChart data={weeklyData} />
-          <CaloriesChart data={weeklyData} />
+
+
         </div>
       </main>
     </div>
