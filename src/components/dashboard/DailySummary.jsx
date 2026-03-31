@@ -13,6 +13,18 @@ export default function DailySummary({ meals, totals, onDeleteMeal, selectedDate
     return mealDate === selectedDate
   })
 
+  const handleClearAll = () => {
+    if (filteredMeals.length === 0) return
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to delete all ${filteredMeals.length} meal(s) for this day? This cannot be undone.`
+    )
+    
+    if (confirmed) {
+      filteredMeals.forEach(meal => onDeleteMeal(meal.id))
+    }
+  }
+
   // Calculate totals for selected date
   const selectedDateTotals = {
     totalProtein: filteredMeals.reduce((sum, meal) => sum + (meal.foods.protein * meal.quantity), 0),
@@ -54,8 +66,17 @@ export default function DailySummary({ meals, totals, onDeleteMeal, selectedDate
 
       {/* Meals List */}
       <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
           <h3 className="text-lg font-semibold">Meals on {displayDate}</h3>
+          {filteredMeals.length > 0 && (
+            <button
+              onClick={handleClearAll}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+              title="Delete all meals for this day"
+            >
+              Clear All
+            </button>
+          )}
         </div>
 
         {filteredMeals.length === 0 ? (
